@@ -2,7 +2,7 @@ name: Daily Historical Validator
 
 on:
   schedule:
-    - cron: '50 8 * * 1-5'
+    - cron: '11 9 * * 1-5'
   workflow_dispatch:
 
 jobs:
