@@ -16,7 +16,7 @@ import os
 # ================= SLACK CONFIG =================
 
 # 🔴 FOR LOCAL TESTING (paste webhook directly)
-SLACK_WEBHOOK_URL = "https://hooks.slack.com/services/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"
+SLACK_WEBHOOK_URL = os.getenv("SLACK_WEBHOOK_URL")  # Use env variable if set
 
 def send_slack_alert(message):
     payload = {"text": message}
@@ -28,15 +28,46 @@ def send_slack_alert(message):
         print("Slack error:", e)
 
 # ===== AUTHENTICATION CONFIG =====
+
 AUTH_CONFIG = {
-    "api_key": "eyJraWQiOiJaTUtjVXciLCJhbGciOiJFUzI1NiJ9.eyJleHAiOjI1NTk5NzQyNDgsImlhdCI6MTc3MTU3NDI0OCwibmJmIjoxNzcxNTc0MjQ4LCJzdWIiOiJ7XCJ0b2tlblJlZklkXCI6XCJmNmVjNzIyZi1lYmQxLTQ2YTEtYWNkMi01NTA2NjA2ODNlZjBcIixcInZlbmRvckludGVncmF0aW9uS2V5XCI6XCJlMzFmZjIzYjA4NmI0MDZjODg3NGIyZjZkODQ5NTMxM1wiLFwidXNlckFjY291bnRJZFwiOlwiYTU2YThjODItMzk3Ny00Y2ZmLThlMTEtNTAxZGZlMmMwYzAzXCIsXCJkZXZpY2VJZFwiOlwiOTU3OTI2Y2ItMWY4NC01NmMwLTllNGYtMGI2Mzc0YjIwZDE1XCIsXCJzZXNzaW9uSWRcIjpcImQyZjFjMDVlLWYxOTAtNDNkNy1hNTk3LTdhMjJkYjhlNzg5MVwiLFwiYWRkaXRpb25hbERhdGFcIjpcIno1NC9NZzltdjE2WXdmb0gvS0EwYkhqaVdVWDJ4L2oyNTVRN2ZObkN3ZjFSTkczdTlLa2pWZDNoWjU1ZStNZERhWXBOVi9UOUxIRmtQejFFQisybTdRPT1cIixcInJvbGVcIjpcImF1dGgtdG90cFwiLFwic291cmNlSXBBZGRyZXNzXCI6XCIxNjUuODUuMTMwLjEzNywxNzIuNzEuMTk4LjcyLDM1LjI0MS4yMy4xMjNcIixcInR3b0ZhRXhwaXJ5VHNcIjoyNTU5OTc0MjQ4MDk4fSIsImlzcyI6ImFwZXgtYXV0aC1wcm9kLWFwcCJ9.Jfy2UM-mx8CqOOxrasysalwFhx0K7M8d6XZKIJTP9cH8Mv8wZi8pmach5FuQOOBkS8nZ6IcJO8qfQ4Ck-0zZxQ",
-    "totp_secret": "D45HEMR75MDZ564ECJT5MCX3VLNOBBSH",
+    "api_key": os.getenv("API_KEY"),
+    "totp_secret": os.getenv("TOTP_SECRET"),
 }
+
 
 # ===== VALIDATION CONFIG =====
 VALIDATION_CONFIG = {
     "symbols": [
-        "BANKNIFTY", "FINNIFTY", "MIDCPNIFTY", "NIFTY", "SENSEX","BANKEX"
+        "BANKNIFTY", "FINNIFTY", "MIDCPNIFTY", "NIFTY", "NIFTYNXT50",
+        "360ONE", "ABB", "ABCAPITAL", "ADANIENSOL", "ADANIENT", "ADANIGREEN", "ADANIPORTS",
+        "ALKEM", "AMBER", "AMBUJACEM", "ANGELONE", "APLAPOLLO", "APOLLOHOSP", "ASHOKLEY",
+        "ASIANPAINT", "ASTRAL", "AUBANK", "AUROPHARMA", "AXISBANK", "BAJAJ-AUTO", "BAJAJFINSV",
+        "BAJAJHLDNG", "BAJFINANCE", "BANDHANBNK", "BANKBARODA", "BANKINDIA", "BDL", "BEL",
+        "BHARATFORG", "BHARTIARTL", "BHEL", "BIOCON", "BLUESTARCO", "BOSCHLTD", "BPCL",
+        "BRITANNIA", "BSE", "CAMS", "CANBK", "CDSL", "CGPOWER", "CHOLAFIN", "CIPLA",
+        "COALINDIA", "COFORGE", "COLPAL", "CONCOR", "CROMPTON", "CUMMINSIND", "DABUR",
+        "DALBHARAT", "DELHIVERY", "DIVISLAB", "DIXON", "DLF", "DMART", "DRREDDY",
+        "EICHERMOT", "ETERNAL", "EXIDEIND", "FEDERALBNK", "FORTIS", "GAIL", "GLENMARK",
+        "GMRAIRPORT", "GODREJCP", "GODREJPROP", "GRASIM", "HAL", "HAVELLS", "HCLTECH",
+        "HDFCAMC", "HDFCBANK", "HDFCLIFE", "HEROMOTOCO", "HINDALCO", "HINDPETRO", "HINDUNILVR",
+        "HINDZINC", "HUDCO", "ICICIBANK", "ICICIGI", "ICICIPRULI", "IDEA", "IDFCFIRSTB",
+        "IEX", "INDHOTEL", "INDIANB", "INDIGO", "INDUSINDBK", "INDUSTOWER", "INFY",
+        "INOXWIND", "IOC", "IRCTC", "IREDA", "IRFC", "ITC", "JINDALSTEL", "JIOFIN",
+        "JSWENERGY", "JSWSTEEL", "JUBLFOOD", "KALYANKJIL", "KAYNES", "KEI", "KFINTECH",
+        "KOTAKBANK", "KPITTECH", "LAURUSLABS", "LICHSGFIN", "LICI", "LODHA", "LT",
+        "LTF", "LTIM", "LUPIN", "M&M", "MANAPPURAM", "MANKIND", "MARICO", "MARUTI",
+        "MAXHEALTH", "MAZDOCK", "MCX", "MFSL", "MOTHERSON", "MPHASIS", "MUTHOOTFIN",
+        "NATIONALUM", "NAUKRI", "NBCC", "NESTLEIND", "NHPC", "NMDC", "NTPC", "NUVAMA",
+        "NYKAA", "OBEROIRLTY", "OFSS", "OIL", "ONGC", "PAGEIND", "PATANJALI", "PAYTM",
+        "PERSISTENT", "PETRONET", "PFC", "PGEL", "PHOENIXLTD", "PIDILITIND", "PIIND",
+        "PNB", "PNBHOUSING", "POLICYBZR", "POLYCAB", "POWERGRID", "POWERINDIA", "PPLPHARMA",
+        "PREMIERENE", "PRESTIGE", "RBLBANK", "RECLTD", "RELIANCE", "RVNL", "SAIL",
+        "SAMMAANCAP", "SBICARD", "SBILIFE", "SBIN", "SHREECEM", "SHRIRAMFIN", "SIEMENS",
+        "SOLARINDS", "SONACOMS", "SRF", "SUNPHARMA", "SUPREMEIND", "SUZLON", "SWIGGY",
+        "SYNGENE", "TATACONSUM", "TATAELXSI", "TATAPOWER", "TATASTEEL", "TATATECH", "TCS",
+        "TECHM", "TIINDIA", "TITAN", "TMPV", "TORNTPHARM", "TORNTPOWER", "TRENT",
+        "TVSMOTOR", "ULTRACEMCO", "UNIONBANK", "UNITDSPR", "UNOMINDA", "UPL", "VBL",
+        "VEDL", "VOLTAS", "WAAREEENER", "WIPRO", "YESBANK", "ZYDUSLIFE","SENSEX","BANKEX"
     ],
     "exchange": ["NSE", "BSE"],
     "segment": "CASH",
@@ -376,7 +407,6 @@ def authenticate():
             totp=totp
         )
         return GrowwAPI(access_token)
-        #return GrowwAPI("eyJraWQiOiJaTUtjVXciLCJhbGciOiJFUzI1NiJ9.eyJleHAiOjE3NzE2MzM4MDAsImlhdCI6MTc3MTU3MjY0NSwibmJmIjoxNzcxNTcyNjQ1LCJzdWIiOiJ7XCJ0b2tlblJlZklkXCI6XCIxZDA5NWUyNy00YjYwLTQzYjktYmYwNi05NjMyYjU4OTAyNDNcIixcInZlbmRvckludGVncmF0aW9uS2V5XCI6XCJlMzFmZjIzYjA4NmI0MDZjODg3NGIyZjZkODQ5NTMxM1wiLFwidXNlckFjY291bnRJZFwiOlwiYTU2YThjODItMzk3Ny00Y2ZmLThlMTEtNTAxZGZlMmMwYzAzXCIsXCJkZXZpY2VJZFwiOlwiOTU3OTI2Y2ItMWY4NC01NmMwLTllNGYtMGI2Mzc0YjIwZDE1XCIsXCJzZXNzaW9uSWRcIjpcImMyZTE2YTdiLTQ3YzgtNDcyYi04ZTM5LWZmZTNhYjAwYTE4NVwiLFwiYWRkaXRpb25hbERhdGFcIjpcIno1NC9NZzltdjE2WXdmb0gvS0EwYkhqaVdVWDJ4L2oyNTVRN2ZObkN3ZjFSTkczdTlLa2pWZDNoWjU1ZStNZERhWXBOVi9UOUxIRmtQejFFQisybTdRPT1cIixcInJvbGVcIjpcIm9yZGVyLWJhc2ljLGxpdmVfZGF0YS1iYXNpYyxub25fdHJhZGluZy1iYXNpYyxvcmRlcl9yZWFkX29ubHktYmFzaWMsYmFja190ZXN0XCIsXCJzb3VyY2VJcEFkZHJlc3NcIjpcIjE2NS44NS4xMzAuMTM3LDE3Mi43MC4yMTkuMjE4LDM1LjI0MS4yMy4xMjNcIixcInR3b0ZhRXhwaXJ5VHNcIjoxNzcxNjMzODAwMDAwfSIsImlzcyI6ImFwZXgtYXV0aC1wcm9kLWFwcCJ9.v4URrFiMJZHScM5o_6mmoBxbJyvLp-BmYREg1WU8UXFXPBPFs2xnlFQ_Wa8R885uWH8XXzuwWW3WPosyIY2Rxw")
     except Exception as e:
         print(f"Authentication failed: {e}")
         raise
@@ -506,7 +536,7 @@ def run_validation():
 ✅ Complete: {complete_count}
 ⚠ With Gaps: {len(gap_results)}
 ❌ Failed: {failed_count}
-#✅ Checked Symbols : {', '.join(r['symbol'] for r in all_results if r['status'] == 'complete')}
+✅ Checked Symbols : {', '.join(r['symbol'] for r in all_results if r['status'] == 'complete')}
 
 ⏱ Execution Time: {duration} sec
 🕒 Run Time: {end_time.strftime('%Y-%m-%d %H:%M:%S')}
