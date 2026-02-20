@@ -506,7 +506,7 @@ def run_validation():
 ✅ Complete: {complete_count}
 ⚠ With Gaps: {len(gap_results)}
 ❌ Failed: {failed_count}
-✅ Checked Symbols : {', '.join(r['symbol'] for r in all_results if r['status'] == 'complete')}
+#✅ Checked Symbols : {', '.join(r['symbol'] for r in all_results if r['status'] == 'complete')}
 
 ⏱ Execution Time: {duration} sec
 🕒 Run Time: {end_time.strftime('%Y-%m-%d %H:%M:%S')}
