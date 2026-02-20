@@ -1,0 +1,5 @@
+pandas
+pyotp
+growwapi
+requests
+pytz
