@@ -10,12 +10,12 @@ import os
 # ================= SLACK CONFIG =================
 
 # 🔴 FOR LOCAL TESTING (paste webhook directly)
-SLACK_WEBHOOK_URL = os.getenv("SLACK_WEBHOOK_URL")  # Use env variable if set
+SLACK_WEBHOOK = os.getenv("SLACK_WEBHOOK")  # Use env variable if set
 
 def send_slack_alert(message):
     payload = {"text": message}
     try:
-        response = requests.post(SLACK_WEBHOOK_URL, json=payload)
+        response = requests.post(SLACK_WEBHOOK, json=payload)
         if response.status_code != 200:
             print("Slack notification failed:", response.text)
     except Exception as e:
