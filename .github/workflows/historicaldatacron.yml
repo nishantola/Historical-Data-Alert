@@ -24,7 +24,7 @@ jobs:
           pip install -r requirements.txt
       - name: Debug Secret Presence
         run: |
-          if [ -z "$SLACK_WEBHOOK" ]; then
+          if [ -z "$SLACK_WEBHOOK_URL" ]; then
           echo "Webhook is EMPTY"
           else
           echo "Webhook is SET"
