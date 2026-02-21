@@ -24,17 +24,17 @@ jobs:
           pip install -r requirements.txt
       - name: Debug Secret Presence
         run: |
-          if [ -z "$SLACK_WEBHOOK_URL" ]; then
+          if [ -z "$SLACK_WEBHOOK" ]; then
           echo "Webhook is EMPTY"
           else
           echo "Webhook is SET"
           fi
           env:
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
       - name: Run Validator
         env:
           API_KEY: ${{ secrets.API_KEY }}
           TOTP_SECRET: ${{ secrets.TOTP_SECRET }}
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
         run: |
           python main.py
