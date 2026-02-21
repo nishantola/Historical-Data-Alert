@@ -22,6 +22,7 @@ def send_slack_alert(message):
     payload = {"text": message}
     try:
         response = requests.post(SLACK_WEBHOOK_URL, json=payload)
+        print("Slack URL:", SLACK_WEBHOOK_URL)
         if response.status_code != 200:
             print("Slack notification failed:", response.text)
     except Exception as e:
