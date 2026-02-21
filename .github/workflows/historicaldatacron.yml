@@ -28,6 +28,7 @@ jobs:
           echo "Webhook is EMPTY"
           else
           echo "Webhook is SET"
+          fi
           env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
       - name: Run Validator
