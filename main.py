@@ -1,9 +1,3 @@
-
-"""
-NIFTY Historical Data Validator - Checks for missing candle data (2020-2024)
-Prints all missing dates with clear categorization
-"""
-
 import pandas as pd
 from datetime import datetime, timedelta
 import time
@@ -22,7 +16,6 @@ def send_slack_alert(message):
     payload = {"text": message}
     try:
         response = requests.post(SLACK_WEBHOOK_URL, json=payload)
-        print("Slack URL:", SLACK_WEBHOOK_URL)
         if response.status_code != 200:
             print("Slack notification failed:", response.text)
     except Exception as e:
