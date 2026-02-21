@@ -22,6 +22,14 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install -r requirements.txt
+      - name: Debug Secret Presence
+        run: |
+          if [ -z "$SLACK_WEBHOOK" ]; then
+          echo "Webhook is EMPTY"
+          else
+          echo "Webhook is SET"
+          env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
       - name: Run Validator
         env:
           API_KEY: ${{ secrets.API_KEY }}
