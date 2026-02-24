@@ -70,7 +70,7 @@ STRATEGY_CONFIG = {
 # ================= BACKTEST CONFIG =================
 
 BACKTEST_CONFIG = {
-    "start_date": "2026-01-19 09:15:00",
+    "start_date": (datetime.now() - timedelta(days=15)).strftime('%Y-%m-%d 09:15:00'),
     "end_date": datetime.now().strftime('%Y-%m-%d 15:30:00'),
     "candle_interval": "1day",
 }
@@ -233,3 +233,4 @@ if __name__ == "__main__":
         strategy.run()
     else:
         print("Only backtest mode supported.")
+
