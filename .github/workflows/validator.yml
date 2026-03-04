@@ -38,4 +38,4 @@ jobs:
           TOTP_SECRET: ${{ secrets.TOTP_SECRET }}
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
         run: |
-          python main.py
+          python historicaldata.py
