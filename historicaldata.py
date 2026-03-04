@@ -105,6 +105,8 @@ def fetch_previous_day_candle(groww, symbol, exchange, start_dt, end_dt):
 
         candles = response.get("candles", [])
 
+        time.sleep(0.5)
+
         if not candles:
             return pd.DataFrame()
 
@@ -138,7 +140,7 @@ def export_to_log(results):
 
 def run_validation():
 
-    send_slack_alert("🔵 Historical Data Check Job Strated" )
+    send_slack_alert("🔵 Validator job started")
 
     groww = authenticate()
 
@@ -150,28 +152,51 @@ def run_validation():
     results = []
 
     for symbol in SYMBOLS:
-        for exchange in EXCHANGES:
 
-            print(f"Checking {exchange}-{symbol}")
+        print(f"Checking NSE-{symbol}")
 
-            df = fetch_previous_day_candle(
-                groww,
-                symbol,
-                exchange,
-                start_dt,
-                end_dt
-            )
+        # ===== Check NSE first =====
+        df = fetch_previous_day_candle(
+            groww,
+            symbol,
+            "NSE",
+            start_dt,
+            end_dt
+        )
 
-            if df.empty:
-                status = "missing"
-            else:
-                status = "complete"
-
+        if not df.empty:
             results.append({
-                "symbol": f"{exchange}-{symbol}",
+                "symbol": symbol,
+                "exchange_used": "NSE",
                 "date_checked": prev_day.date(),
-                "status": status
+                "status": "complete"
             })
+            continue
+
+        print(f"NSE missing, checking BSE-{symbol}")
+
+        # ===== Check BSE if NSE missing =====
+        df = fetch_previous_day_candle(
+            groww,
+            symbol,
+            "BSE",
+            start_dt,
+            end_dt
+        )
+
+        if not df.empty:
+            status = "complete"
+            exchange_used = "BSE"
+        else:
+            status = "missing"
+            exchange_used = "BSE"
+
+        results.append({
+            "symbol": symbol,
+            "exchange_used": exchange_used,
+            "date_checked": prev_day.date(),
+            "status": status
+        })
 
     # ===== SUMMARY =====
 
