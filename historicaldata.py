@@ -140,7 +140,7 @@ def export_to_log(results):
 
 def run_validation():
 
-    send_slack_alert("🔵 Validator job started")
+    send_slack_alert("🔵 Historical Data Check Started")
 
     groww = authenticate()
 
