@@ -54,14 +54,26 @@ STRATEGY_CONFIG = {
         {
             "symbol": "GROWW",
             "exchange": "NSE",
-            "quantity": 300,
-            "average_price": 132.0
+            "quantity": 3458,
+            "average_price": 217.0
         },
         {
             "symbol": "PFOCUS",
             "exchange": "NSE",
-            "quantity": 131,
-            "average_price": 217.0
+            "quantity": 155,
+            "average_price": 255.0
+        },
+        {
+            "symbol": "CDSL",
+            "exchange": "NSE",
+            "quantity": 20,
+            "average_price": 1167.0
+        },
+        {
+            "symbol": "NSDL",
+            "exchange": "BSE",
+            "quantity": 20,
+            "average_price": 818.0
         }
     ]
 }
@@ -70,7 +82,7 @@ STRATEGY_CONFIG = {
 # ================= BACKTEST CONFIG =================
 
 BACKTEST_CONFIG = {
-    "start_date": (datetime.now() - timedelta(days=15)).strftime('%Y-%m-%d 09:15:00'),
+    "start_date": (datetime.now() - timedelta(days=5)).strftime('%Y-%m-%d 09:15:00'),
     "end_date": datetime.now().strftime('%Y-%m-%d 15:30:00'),
     "candle_interval": "1day",
 }
