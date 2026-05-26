@@ -35,8 +35,6 @@ AUTH_CONFIG = {
 }
 
 # ================= STRATEGY CONFIG =================
-# NOTE: For BSE-listed stocks, use the BSE numeric scrip code in the "symbol" field.
-#       NSDL's BSE scrip code is 544185. NSE stocks use the trading symbol string.
 STRATEGY_CONFIG = {
     "holdings": [
         {
@@ -58,8 +56,7 @@ STRATEGY_CONFIG = {
             "average_price": 1167.0
         },
         {
-            "symbol": "544185",      # BSE scrip code for NSDL
-            "display_name": "NSDL",  # used only for display in the report
+            "symbol": "NSDL",
             "exchange": "BSE",
             "quantity": 35,
             "average_price": 815.0
@@ -69,7 +66,7 @@ STRATEGY_CONFIG = {
 
 # ================= BACKTEST CONFIG =================
 BACKTEST_CONFIG = {
-    "start_date": (datetime.now() - timedelta(days=5)).strftime('%Y-%m-%d 09:15:00'),
+    "start_date": (datetime.now() - timedelta(days=7)).strftime('%Y-%m-%d 09:15:00'),
     "end_date": datetime.now().strftime('%Y-%m-%d 15:30:00'),
     "candle_interval": "1day",
 }
@@ -77,8 +74,64 @@ BACKTEST_CONFIG = {
 MODE = "backtest"
 
 # ================= HELPER FUNCTIONS =================
-def get_groww_symbol(exchange: str, trading_symbol: str) -> str:
-    return f"{exchange}-{trading_symbol}"
+
+def get_api_exchange(groww_client, exchange: str):
+    if exchange == "NSE":
+        return groww_client.EXCHANGE_NSE
+    elif exchange == "BSE":
+        return groww_client.EXCHANGE_BSE
+    else:
+        raise ValueError(f"Unsupported exchange: {exchange}")
+
+def probe_symbol(groww_client, display_name: str, test_end: str):
+    """
+    Tries all likely symbol formats for a BSE stock and returns the first one
+    that gives back candle data. Prints a clear diagnostic table.
+    """
+    test_start = (
+        datetime.strptime(test_end, '%Y-%m-%d %H:%M:%S') - timedelta(days=10)
+    ).strftime('%Y-%m-%d %H:%M:%S')
+
+    # Candidate formats to try, in priority order
+    candidates = [
+        ("BSE", "NSE",  display_name),          # maybe dual-listed on NSE
+        ("BSE", "BSE",  display_name),           # BSE-NSDL  (original)
+        ("BSE", "BSE",  "544185"),               # BSE scrip code
+        ("BSE", "BSE",  display_name.upper()),   # uppercase just in case
+    ]
+
+    print(f"\n{'─'*60}")
+    print(f"  Probing symbol formats for {display_name}:")
+    print(f"{'─'*60}")
+
+    for orig_exchange, try_exchange, try_symbol in candidates:
+        groww_symbol = f"{try_exchange}-{try_symbol}"
+        api_exchange = get_api_exchange(groww_client, try_exchange)
+        try:
+            response = groww_client.get_historical_candles(
+                exchange=api_exchange,
+                segment=groww_client.SEGMENT_CASH,
+                groww_symbol=groww_symbol,
+                start_time=test_start,
+                end_time=test_end,
+                candle_interval=groww_client.CANDLE_INTERVAL_DAY
+            )
+            count = len(response.get("candles", []))
+            status = response.get("status", "?")
+            marker = "✅ HIT" if count > 0 else "❌ empty"
+            print(f"  {marker}  groww_symbol={groww_symbol:<20} "
+                  f"exchange={try_exchange}  status={status}  candles={count}")
+            if count > 0:
+                print(f"{'─'*60}")
+                return try_exchange, try_symbol   # caller uses this pair
+        except Exception as e:
+            print(f"  💥 ERR   groww_symbol={groww_symbol:<20} error={e}")
+
+    print(f"{'─'*60}")
+    print(f"  ⚠ All formats failed for {display_name}. "
+          f"Check if the stock is supported by GrowwAPI.")
+    print(f"{'─'*60}")
+    return None, None
 
 def fetch_historical_data(
     groww_client,
@@ -98,15 +151,12 @@ def fetch_historical_data(
             end_time=end_time,
             candle_interval=candle_interval
         )
-        print(f"  [DEBUG] API response for {groww_symbol}: status={response.get('status')}, "
-              f"candle count={len(response.get('candles', []))}")
     except Exception as e:
         print(f"  [ERROR] API call failed for {groww_symbol}: {e}")
         return pd.DataFrame()
 
     candles = response.get('candles', [])
     if not candles:
-        print(f"  [WARN] Empty candles for {groww_symbol}. Full response: {response}")
         return pd.DataFrame()
 
     df = pd.DataFrame(
@@ -124,20 +174,10 @@ class BacktestStrategy:
         self.backtest_config = backtest_config
 
     def fetch_data(self, symbol, exchange, start, end):
-        groww_symbol = get_groww_symbol(exchange, symbol)
-
+        groww_symbol = f"{exchange}-{symbol}"
         start_dt = datetime.strptime(start, '%Y-%m-%d %H:%M:%S')
         adjusted_start = (start_dt - timedelta(days=5)).strftime('%Y-%m-%d %H:%M:%S')
-
-        if exchange == "NSE":
-            api_exchange = self.groww.EXCHANGE_NSE
-        elif exchange == "BSE":
-            api_exchange = self.groww.EXCHANGE_BSE
-        else:
-            raise ValueError(f"Unsupported exchange: {exchange}")
-
-        print(f"  Fetching {groww_symbol} | exchange={api_exchange} | "
-              f"start={adjusted_start} | end={end}")
+        api_exchange = get_api_exchange(self.groww, exchange)
 
         df = fetch_historical_data(
             groww_client=self.groww,
@@ -159,13 +199,11 @@ class BacktestStrategy:
 
         for holding in self.holdings:
             symbol = holding["symbol"]
-            # Use display_name if set (e.g. for BSE scrip-code entries), else symbol
-            display_name = holding.get("display_name", symbol)
-            quantity = holding["quantity"]
             exchange = holding["exchange"]
+            quantity = holding["quantity"]
+            display_name = holding.get("display_name", symbol)
 
-            print(f"\nProcessing {display_name} ({exchange})...")
-
+            # ── Try the configured symbol first ──────────────────────────
             df = self.fetch_data(
                 symbol=symbol,
                 exchange=exchange,
@@ -173,9 +211,30 @@ class BacktestStrategy:
                 end=self.backtest_config["end_date"]
             )
 
+            # ── If empty, auto-probe alternative formats ─────────────────
             if df.empty:
-                print(f"  [WARN] No data returned for {display_name}")
-                report_lines.append(f"\n⚠ No data for {display_name} ({exchange}:{symbol})")
+                print(f"\n[INFO] No data for {display_name} with "
+                      f"{exchange}-{symbol}. Running format probe...")
+                resolved_exchange, resolved_symbol = probe_symbol(
+                    self.groww,
+                    display_name,
+                    self.backtest_config["end_date"]
+                )
+                if resolved_symbol:
+                    print(f"[INFO] Using resolved format: "
+                          f"{resolved_exchange}-{resolved_symbol}")
+                    df = self.fetch_data(
+                        symbol=resolved_symbol,
+                        exchange=resolved_exchange,
+                        start=self.backtest_config["start_date"],
+                        end=self.backtest_config["end_date"]
+                    )
+
+            if df.empty:
+                report_lines.append(
+                    f"\n⚠ No data for {display_name} "
+                    f"({exchange}:{symbol}) — check console for probe results"
+                )
                 continue
 
             df = df.sort_values("timestamp")
@@ -186,7 +245,7 @@ class BacktestStrategy:
 
             if df.empty:
                 report_lines.append(
-                    f"\n⚠ Data fetched but no rows after filtering to start_date "
+                    f"\n⚠ Data fetched but all rows predate start_date "
                     f"for {display_name}"
                 )
                 continue
@@ -194,11 +253,11 @@ class BacktestStrategy:
             report_lines.append(f"\n🔹 *{display_name}*")
 
             for i in range(1, len(df)):
-                prev_close = df.iloc[i - 1]["close"]
-                current_close = df.iloc[i]["close"]
-                date = df.iloc[i]["timestamp"].date()
-                day_pnl = (current_close - prev_close) * quantity
-                emoji = "🟢" if day_pnl >= 0 else "🔴"
+                prev_close     = df.iloc[i - 1]["close"]
+                current_close  = df.iloc[i]["close"]
+                date           = df.iloc[i]["timestamp"].date()
+                day_pnl        = (current_close - prev_close) * quantity
+                emoji          = "🟢" if day_pnl >= 0 else "🔴"
 
                 report_lines.append(
                     f"{date.strftime('%d-%b-%Y')} | "
@@ -207,10 +266,11 @@ class BacktestStrategy:
                     f"{emoji} Day P&L: ₹{day_pnl:,.2f}"
                 )
 
-                # Accumulate portfolio-level P&L per date
-                total_pnl_by_date[date] = total_pnl_by_date.get(date, 0) + day_pnl
+                total_pnl_by_date[date] = (
+                    total_pnl_by_date.get(date, 0) + day_pnl
+                )
 
-        # Portfolio summary
+        # Portfolio daily summary
         if total_pnl_by_date:
             report_lines.append("\n" + "=" * 60)
             report_lines.append("📈 *PORTFOLIO SUMMARY*")
@@ -218,7 +278,8 @@ class BacktestStrategy:
                 total = total_pnl_by_date[date]
                 emoji = "🟢" if total >= 0 else "🔴"
                 report_lines.append(
-                    f"{date.strftime('%d-%b-%Y')} | {emoji} Total P&L: ₹{total:,.2f}"
+                    f"{date.strftime('%d-%b-%Y')} | "
+                    f"{emoji} Total P&L: ₹{total:,.2f}"
                 )
 
         final_report = "\n".join(report_lines)
