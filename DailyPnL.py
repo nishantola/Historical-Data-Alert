@@ -56,6 +56,25 @@ STRATEGY_CONFIG = {
             "average_price": 1167.0
         },
         {
+            "symbol": "VEDL",
+            "exchange": "NSE",
+            "quantity": 50,
+            "average_price": 325.0
+        },
+        {
+            "symbol": "TMPV",
+            "exchange": "NSE",
+            "quantity": 25,
+            "average_price": 351.0
+        },
+        {
+            "symbol": "DELTACORP",
+            "exchange": "NSE",
+            "quantity": 130,
+            "average_price": 69.0
+        },
+        
+        {
             "symbol": "NSDL",
             "exchange": "BSE",
             "quantity": 35,
