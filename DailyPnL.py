@@ -66,7 +66,7 @@ STRATEGY_CONFIG = {
 
 # ================= BACKTEST CONFIG =================
 BACKTEST_CONFIG = {
-    "start_date": (datetime.now() - timedelta(days=7)).strftime('%Y-%m-%d 09:15:00'),
+    "start_date": (datetime.now() - timedelta(days=5)).strftime('%Y-%m-%d 09:15:00'),
     "end_date": datetime.now().strftime('%Y-%m-%d 15:30:00'),
     "candle_interval": "1day",
 }
