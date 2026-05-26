@@ -145,7 +145,7 @@ class BacktestStrategy:
 
         df = fetch_historical_data(
             groww_client=self.groww,
-            exchange=self.groww.EXCHANGE_NSE,
+            exchange=exchange,
             segment=self.groww.SEGMENT_CASH,
             groww_symbol=groww_symbol,
             start_time=adjusted_start,
