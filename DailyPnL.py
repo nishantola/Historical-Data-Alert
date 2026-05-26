@@ -72,7 +72,7 @@ STRATEGY_CONFIG = {
         {
             "symbol": "NSDL",
             "exchange": "BSE",
-            "quantity": 20,
+            "quantity": 35,
             "average_price": 815.0
         }
     ]
@@ -138,20 +138,37 @@ class BacktestStrategy:
         self.historical_data = {}
 
     def fetch_data(self, symbol, exchange, start, end):
-        groww_symbol = get_groww_symbol(exchange, symbol)
 
-        start_dt = datetime.strptime(start, '%Y-%m-%d %H:%M:%S')
-        adjusted_start = (start_dt - timedelta(days=5)).strftime('%Y-%m-%d %H:%M:%S')
+        groww_symbol = get_groww_symbol(exchange, symbol)
+    
+        start_dt = datetime.strptime(
+            start,
+            '%Y-%m-%d %H:%M:%S'
+        )
+    
+        adjusted_start = (
+            start_dt - timedelta(days=5)
+        ).strftime('%Y-%m-%d %H:%M:%S')
+    
+        # Dynamic exchange mapping
+        if exchange == "NSE":
+            api_exchange = self.groww.EXCHANGE_NSE
+    
+        elif exchange == "BSE":
+            api_exchange = self.groww.EXCHANGE_BSE
+    
+        else:
+            raise ValueError(f"Unsupported exchange: {exchange}")
 
         df = fetch_historical_data(
             groww_client=self.groww,
-            exchange=exchange,
+            exchange=api_exchange,
             segment=self.groww.SEGMENT_CASH,
             groww_symbol=groww_symbol,
             start_time=adjusted_start,
             end_time=end,
             candle_interval=self.groww.CANDLE_INTERVAL_DAY
-        )
+            )
 
         return df
 
