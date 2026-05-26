@@ -73,7 +73,7 @@ STRATEGY_CONFIG = {
             "symbol": "NSDL",
             "exchange": "BSE",
             "quantity": 20,
-            "average_price": 818.0
+            "average_price": 815.0
         }
     ]
 }
