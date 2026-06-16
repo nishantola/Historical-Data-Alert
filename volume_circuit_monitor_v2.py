@@ -8,7 +8,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 
 # ================= SLACK CONFIG =================
-SLACK_WEBHOOK = os.getenv("SLACK_WEBHOOK")
+SLACK_WEBHOOK = os.getenv("SLACK_WEBHOOK_CIRCUIT")
 
 def send_slack_alert(message):
     payload = {"text": message}
